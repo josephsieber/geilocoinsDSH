@@ -28,7 +28,7 @@ const getNum = (prop) => {
 };
 
 export default async function handler(req, res) {
-  // CORS headers erlauben
+  // CORS erlauben
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -38,11 +38,18 @@ export default async function handler(req, res) {
   }
 
   try {
-    const response = await notion.databases.query({
+    const resp = await notion.databases.query({
       database_id: DB_ID,
+      filter: {
+        property: "Name",
+        title: {
+          equals: "Gesamt"
+        }
+      },
+      page_size: 1
     });
 
-    if (!response.results || response.results.length === 0) {
+    if (!resp.results || resp.results.length === 0) {
       return res.status(200).json({
         level: 0,
         progressPercent: 0,
@@ -51,7 +58,7 @@ export default async function handler(req, res) {
       });
     }
 
-    const page = response.results[0];
+    const page = resp.results[0];
     const p = page.properties;
 
     const level = getNum(p["Level"]);
