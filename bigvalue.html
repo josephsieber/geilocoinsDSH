@@ -37,7 +37,7 @@
         if (!resp.ok) throw new Error('HTTP ' + resp.status);
         const data = await resp.json();
         console.log("📡 bigvalue: Payload", data);
-        const value = data.level;  // oder data.progressPercent, je nachdem, was angezeigt werden soll
+        const value = data.kontostand;  // oder data.progressPercent, je nachdem, was angezeigt werden soll
         document.getElementById('big').innerText = `💰 ${value} Geilo Coins`;
       } catch (e) {
         console.error('📡 bigvalue: Fehler beim Laden:', e);
