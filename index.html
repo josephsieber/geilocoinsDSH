@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Geilo Coins Fortschrittsring</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: transparent;
+    }
+    canvas {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="myChart" width="300" height="300"></canvas>
+  <script>
+    const level = 3;
+    const progress = 3;
+    const rest = 100 - progress;
+
+    const centerTextPlugin = {
+      id: 'centerText',
+      beforeDraw(chart) {
+        const ctx = chart.ctx;
+        const width = chart.width;
+        const height = chart.height;
+
+        const meta = chart.getDatasetMeta(0);
+        if (!meta.data || !meta.data[0]) return;
+        const arc = meta.data[0];
+        const innerRadius = arc.innerRadius;
+        const outerRadius = arc.outerRadius;
+
+        // Abstand von Innenrand minimal lassen
+        const availableRadius = innerRadius * 1.8;  // Text kann fast bis zum inneren Kreisrand
+        const fontSize = Math.min(availableRadius, innerRadius * 1.2);  
+        // (du kannst hier multiplier >1 ausprobieren, z. B. 1.2 oder 1.4)
+
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#000';
+        ctx.font = `${fontSize}px sans-serif`;
+        ctx.fillText(level.toString(), width / 2, height / 2);
+        ctx.restore();
+      }
+    };
+
+    const ctx = document.getElementById('myChart').getContext('2d');
+    const myChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Fortschritt', 'Rest'],
+        datasets: [{
+          data: [progress, rest],
+          backgroundColor: ['#4CAF50', '#E0E0E0'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        cutout: '70%',
+        responsive: true,
+        plugins: {
+          legend: { display: false }
+        }
+      },
+      plugins: [ centerTextPlugin ]
+    });
+
+    function refreshChartData() {
+      const newProgress = progress;
+      const newRest = 100 - newProgress;
+      myChart.data.datasets[0].data = [ newProgress, newRest ];
+      myChart.update();
+    }
+    setInterval(refreshChartData, 30 * 1000);
+  </script>
+</body>
+</html>
