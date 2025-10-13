@@ -17,11 +17,10 @@
     }
     #big {
       font-family: sans-serif;
-      font-size: 4rem; /* etwas kleinere Schriftgröße */
+      font-size: 3rem; /* kleinere Schriftgröße */
       font-weight: bold;
       color: #000;
       text-align: center;
-      word-break: break-word;
     }
   </style>
 </head>
@@ -30,22 +29,18 @@
 
   <script>
     async function loadValue() {
-      console.log("📡 bigvalue: fetch starten");
       try {
         const resp = await fetch('https://geilocoins.vercel.app/api/geilocoins');
-        console.log("📡 bigvalue: Status", resp.status);
         if (!resp.ok) throw new Error('HTTP ' + resp.status);
         const data = await resp.json();
-        console.log("📡 bigvalue: Payload", data);
-        const value = data.kontostand;  // oder data.progressPercent, je nachdem, was angezeigt werden soll
+        const value = data.level;  // oder data.progressPercent, je nachdem was du anzeigen willst
         document.getElementById('big').innerText = `💰 ${value} Geilo Coins`;
       } catch (e) {
-        console.error('📡 bigvalue: Fehler beim Laden:', e);
         document.getElementById('big').innerText = 'Fehler';
       }
     }
     loadValue();
-    setInterval(loadValue, 30000);  // alle 30 Sekunden neu laden
+    setInterval(loadValue, 30000);
   </script>
 </body>
 </html>
