@@ -1,52 +1,57 @@
 import { Client } from "@notionhq/client";
 
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
-const databaseId = process.env.NOTION_DB_ID;
+const DB_ID = process.env.NOTION_DB_ID;
 
-// Hilfsfunktion: liest Zahlen robust aus (egal ob Number, Formula oder Rollup)
 const getNum = (prop) => {
   if (!prop) return 0;
-
   switch (prop.type) {
-    case 'number':
+    case "number":
       return prop.number ?? 0;
-
-    case 'rollup':
-      if (prop.rollup?.type === 'number') return prop.rollup.number ?? 0;
-      if (prop.rollup?.type === 'array') {
-        const n = prop.rollup.array.find(x => x.type === 'number')?.number;
+    case "rollup":
+      if (prop.rollup?.type === "number") return prop.rollup.number ?? 0;
+      if (prop.rollup?.type === "array") {
+        const n = prop.rollup.array.find(x => x.type === "number")?.number;
         return n ?? 0;
       }
       return 0;
-
-    case 'formula':
-      if (prop.formula?.type === 'number') return prop.formula.number ?? 0;
-      if (prop.formula?.type === 'string') {
-        const n = Number((prop.formula.string || '').replace(/[^\d.-]/g, ''));
+    case "formula":
+      if (prop.formula?.type === "number") return prop.formula.number ?? 0;
+      if (prop.formula?.type === "string") {
+        const n = Number((prop.formula.string || "").replace(/[^\d.-]/g, ""));
         return isNaN(n) ? 0 : n;
       }
       return 0;
-
-    case 'rich_text':
-      return Number(prop.rich_text.map(t => t.plain_text).join('').replace(/[^\d.-]/g, '')) || 0;
-
     default:
       return 0;
   }
 };
 
-// Standard-Handler
 export default async function handler(req, res) {
+  // CORS headers erlauben
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
   try {
-    const query = await notion.databases.query({
-      database_id: databaseId,
+    const response = await notion.databases.query({
+      database_id: DB_ID,
     });
 
-    if (!query.results || query.results.length === 0) {
-      return res.status(200).json({ error: "Keine Daten gefunden" });
+    if (!response.results || response.results.length === 0) {
+      return res.status(200).json({
+        level: 0,
+        progressPercent: 0,
+        progressFraction: 0,
+        rest: 100
+      });
     }
 
-    const page = query.results[0];
+    const page = response.results[0];
     const p = page.properties;
 
     const level = getNum(p["Level"]);
@@ -58,13 +63,13 @@ export default async function handler(req, res) {
       level,
       progressPercent,
       progressFraction,
-      rest,
+      rest
     });
   } catch (error) {
     console.error("Fehler beim Abrufen:", error);
     return res.status(500).json({
       error: "Serverfehler",
-      detail: error.message,
+      detail: error.message
     });
   }
 }
