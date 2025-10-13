@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Geilo Coin Anzeige</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: transparent;
+    }
+    #big {
+      font-family: sans-serif;
+      font-size: 5rem;
+      font-weight: bold;
+      color: #000;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="big">—</div>
+
+  <script>
+    async function loadValue() {
+      try {
+        const resp = await fetch('https://geilocoins.vercel.app/api/geilocoins');
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const data = await resp.json();
+        const value = data.level;  // oder: data.progressPercent, je was du anzeigen willst
+        document.getElementById('big').innerText = `💰 ${value} Geilo Coins`;
+      } catch (e) {
+        console.error('Fehler beim Laden:', e);
+        document.getElementById('big').innerText = 'Fehler';
+      }
+    }
+    loadValue();
+    setInterval(loadValue, 10000);  // alle 10 Sekunden neu laden
+  </script>
+</body>
+</html>
