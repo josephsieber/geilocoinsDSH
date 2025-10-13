@@ -23,10 +23,7 @@
 <body>
   <canvas id="myChart" width="300" height="300"></canvas>
   <script>
-    const level = 3;
-    const progress = 3;
-    const rest = 100 - progress;
-
+    // Plugin: Zeichnet den Level groß in der Mitte
     const centerTextPlugin = {
       id: 'centerText',
       beforeDraw(chart) {
@@ -40,17 +37,18 @@
         const innerRadius = arc.innerRadius;
         const outerRadius = arc.outerRadius;
 
-        // Abstand von Innenrand minimal lassen
-        const availableRadius = innerRadius * 1.8;  // Text kann fast bis zum inneren Kreisrand
-        const fontSize = Math.min(availableRadius, innerRadius * 1.2);  
-        // (du kannst hier multiplier >1 ausprobieren, z. B. 1.2 oder 1.4)
+        // Mittelwert zwischen innen & außen
+        const radius = (innerRadius + outerRadius) / 2;
+        // Schriftgröße: aggressive Skalierung
+        const fontSize = Math.min(radius * 1.5, radius * 2);
 
         ctx.save();
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillStyle = '#000';
         ctx.font = `${fontSize}px sans-serif`;
-        ctx.fillText(level.toString(), width / 2, height / 2);
+        // Der Level wurde in Chart gespeichert als property
+        ctx.fillText(chart._geilo_level?.toString() ?? '', width / 2, height / 2);
         ctx.restore();
       }
     };
@@ -61,7 +59,7 @@
       data: {
         labels: ['Fortschritt', 'Rest'],
         datasets: [{
-          data: [progress, rest],
+          data: [0, 100],
           backgroundColor: ['#4CAF50', '#E0E0E0'],
           borderWidth: 0
         }]
@@ -73,16 +71,32 @@
           legend: { display: false }
         }
       },
-      plugins: [ centerTextPlugin ]
+      plugins: [centerTextPlugin]
     });
 
-    function refreshChartData() {
-      const newProgress = progress;
-      const newRest = 100 - newProgress;
-      myChart.data.datasets[0].data = [ newProgress, newRest ];
-      myChart.update();
+    // Funktion, die deine API abruft und Chart aktualisiert
+    async function refreshFromAPI() {
+      try {
+        const resp = await fetch('https://geilocoins.vercel.app/api/geilocoins');
+        if (!resp.ok) {
+          throw new Error(`HTTP Fehler: ${resp.status}`);
+        }
+        const payload = await resp.json();
+        const { level, progressPercent, rest } = payload;
+
+        // Speichere Level in Chart (für Plugin)
+        myChart._geilo_level = level;
+
+        myChart.data.datasets[0].data = [ progressPercent, rest ];
+        myChart.update();
+      } catch (err) {
+        console.error('Fehler beim Laden der API:', err);
+      }
     }
-    setInterval(refreshChartData, 30 * 1000);
+
+    // Erstaufruf + Intervall
+    refreshFromAPI();
+    setInterval(refreshFromAPI, 10 * 1000);
   </script>
 </body>
 </html>
