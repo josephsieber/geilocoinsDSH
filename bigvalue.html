@@ -17,7 +17,7 @@
     }
     #big {
       font-family: sans-serif;
-      font-size: 3rem; /* kleinere Schriftgröße */
+      font-size: 4.5rem; /* etwas größere Schrift */
       font-weight: bold;
       color: #000;
       text-align: center;
@@ -33,9 +33,11 @@
         const resp = await fetch('https://geilocoins.vercel.app/api/geilocoins');
         if (!resp.ok) throw new Error('HTTP ' + resp.status);
         const data = await resp.json();
-        const value = data.level;  // oder data.progressPercent, je nachdem was du anzeigen willst
+        // Hier wird kontostand benutzt, wenn in deiner API der kontostand-Name richtig gesetzt wurde
+        const value = data.kontostand !== undefined ? data.kontostand : data.progressPercent;
         document.getElementById('big').innerText = `💰 ${value} Geilo Coins`;
       } catch (e) {
+        console.error('Fehler beim Laden:', e);
         document.getElementById('big').innerText = 'Fehler';
       }
     }
