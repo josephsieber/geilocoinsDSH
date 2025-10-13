@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Geilo Coin Anzeige</title>
+  <title>Geilo Coins Großanzeige</title>
   <style>
     html, body {
       margin: 0;
@@ -25,15 +25,18 @@
   </style>
 </head>
 <body>
-  <div id="big">—</div>
+  <div id="big">Lädt...</div>
 
   <script>
     async function loadValue() {
+      console.log("Versuche fetch");  // Debug
       try {
         const resp = await fetch('https://geilocoins.vercel.app/api/geilocoins');
+        console.log("Antwort status", resp.status);
         if (!resp.ok) throw new Error('HTTP ' + resp.status);
         const data = await resp.json();
-        const value = data.level;  // oder: data.progressPercent, je was du anzeigen willst
+        console.log("Payload", data);
+        const value = data.level;  // oder data.progressPercent
         document.getElementById('big').innerText = `💰 ${value} Geilo Coins`;
       } catch (e) {
         console.error('Fehler beim Laden:', e);
@@ -41,7 +44,7 @@
       }
     }
     loadValue();
-    setInterval(loadValue, 10000);  // alle 10 Sekunden neu laden
+    setInterval(loadValue, 30000);  // erst mit 30s testen
   </script>
 </body>
 </html>
