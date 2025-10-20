@@ -54,7 +54,8 @@ export default async function handler(req, res) {
         level: 0,
         progressPercent: 0,
         progressFraction: 0,
-        rest: 100
+        rest: 100,
+        kontostand: 0
       });
     }
 
@@ -66,11 +67,15 @@ export default async function handler(req, res) {
     const progressPercent = Math.round(Math.max(0, Math.min(100, progressFraction * 100)));
     const rest = 100 - progressPercent;
 
+    // Neuer Wert: kontostand (hier gleich progressPercent als Beispiel)
+    const kontostand = progressPercent;
+
     return res.status(200).json({
       level,
       progressPercent,
       progressFraction,
-      rest
+      rest,
+      kontostand
     });
   } catch (error) {
     console.error("Fehler beim Abrufen:", error);
