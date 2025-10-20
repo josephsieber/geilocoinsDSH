@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Geilo Coins Großanzeige</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GEILO COINS – Kontostand</title>
   <style>
     html, body {
       margin: 0;
@@ -11,38 +11,42 @@
       width: 100%;
       height: 100%;
       display: flex;
-      justify-content: center;
       align-items: center;
-      background: transparent;
+      justify-content: center;
+      background: white;
     }
-    #big {
-      font-family: sans-serif;
-      font-size: 4.5rem; /* etwas größere Schrift */
-      font-weight: bold;
-      color: #000;
+    .value {
+      font-family: system-ui, sans-serif;
+      font-weight: 700;
+      color: black;
       text-align: center;
+      font-size: clamp(32px, 10vw, 90px);
+      line-height: 1;
+      padding: 0 10px;
     }
   </style>
 </head>
 <body>
-  <div id="big">Lädt…</div>
+  <div class="value" id="coinValue">0 Geilo Coins</div>
 
   <script>
-    async function loadValue() {
+    async function fetchData() {
       try {
-        const resp = await fetch('https://geilocoins.vercel.app/api/geilocoins');
-        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const resp = await fetch('/api/geilocoins');
+        if (!resp.ok) throw new Error('Status ' + resp.status);
         const data = await resp.json();
-        // Hier wird kontostand benutzt, wenn in deiner API der kontostand-Name richtig gesetzt wurde
-        const value = data.kontostand !== undefined ? data.kontostand : data.progressPercent;
-        document.getElementById('big').innerText = `💰 ${value} Geilo Coins`;
-      } catch (e) {
-        console.error('Fehler beim Laden:', e);
-        document.getElementById('big').innerText = 'Fehler';
+        // Annahme: data.kontostand liefert den Kontostand
+        const coins = data.kontostand;
+        const valueElement = document.getElementById('coinValue');
+        valueElement.textContent = `${coins} Geilo Coins`;
+      } catch(err) {
+        console.error('bigvalue fetch error:', err);
       }
     }
-    loadValue();
-    setInterval(loadValue, 30000);
+    // Erst abrufen
+    fetchData();
+    // alle 30 Sekunden aktualisieren
+    setInterval(fetchData, 30000);
   </script>
 </body>
 </html>
