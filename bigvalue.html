@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>GEILO COINS – Kontostand</title>
   <style>
@@ -27,7 +27,7 @@
   </style>
 </head>
 <body>
-  <div class="value" id="coinValue">0 Geilo Coins</div>
+  <div class="value" id="coinValue">💰 0 Geilo Coins</div>
 
   <script>
     async function fetchData() {
@@ -35,15 +35,15 @@
         const resp = await fetch('/api/geilocoins');
         if (!resp.ok) throw new Error('Status ' + resp.status);
         const data = await resp.json();
-        // Annahme: data.kontostand liefert den Kontostand
-        const coins = data.kontostand;
+        // Annahme: API liefert das Feld „kontostand“
+        const coins = data.kontostand ?? 0;
         const valueElement = document.getElementById('coinValue');
-        valueElement.textContent = `${coins} Geilo Coins`;
+        valueElement.textContent = `💰 ${coins} Geilo Coins`;
       } catch(err) {
         console.error('bigvalue fetch error:', err);
       }
     }
-    // Erst abrufen
+    // Initial laden
     fetchData();
     // alle 30 Sekunden aktualisieren
     setInterval(fetchData, 30000);
